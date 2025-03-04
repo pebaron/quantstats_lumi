@@ -54,7 +54,14 @@ def _match_dates(returns, benchmark):
     if isinstance(returns, _pd.DataFrame):
         loc = max(returns[returns.columns[0]].ne(0).idxmax(), benchmark.ne(0).idxmax())
     else:
-        loc = max(returns.ne(0).idxmax(), benchmark.ne(0).idxmax())
+        returns_idx = returns[returns.ne(0)].idxmax()
+        # Get the index of first non-zero in benchmark (benchmark_idx should be a scalar datetime)
+        benchmark_idx = benchmark[benchmark.ne(0)].idxmax()
+        # Ensure benchmark_idx is a scalar datetime value, not a Series
+        if isinstance(benchmark_idx, _pd.Series):
+            benchmark_idx = benchmark_idx.iloc[0]
+        loc = max(returns_idx, benchmark_idx)
+        #loc = max(returns.ne(0).idxmax(), benchmark.ne(0).idxmax())
     returns = returns.loc[loc:]
     benchmark = benchmark.loc[loc:]
 
